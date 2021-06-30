@@ -1,0 +1,99 @@
+---
+# tasks file for secgroup_instances
+- name: install python
+  apt: name=python3 state=present
+# - name: install pip
+#   apt: name=pip state=present
+- name: install boto3
+  pip: name=boto3 state=present
+# - name: launching AWS instance using Ansible
+#   ec2:
+#     key_name: target1
+#     instance_type: t2.micro
+#     image: ami-0ad704c126371a549
+#     region: ap-south-1
+#     wait: yes
+#     group: launch-wizard-4
+#     count: 1
+#     vpc_subnet_id: subnet-40a0482b
+#     assign_public_ip: yes
+#     aws_access_key: "{{access_key}}"
+#     aws_secret_key: "{{secret_key}}"
+
+- name: create security group
+  ec2_group:
+    name: "{{sg_name}}"
+    description: this is a web security group
+    region: "{{region}}"
+    aws_access_key: "{{ access_key }}"
+    aws_secret_key: "{{ secret_key }}"
+    rules:
+      - proto: tcp
+        from_port: 22
+        to_port: 22
+        cidr_ip: 0.0.0.0/0
+      - proto: tcp
+        from_port: "{{my_port}}"
+        to_port: "{{my_port}}"
+        cidr_ip: 0.0.0.0/0
+      # - proto: tcp
+      #   from_port: 81
+      #   to_port: 81
+      #   cidr_ip: 0.0.0.0/0
+      # - proto: icmp
+      #   from_port: -1
+      #   to_port: -1
+      #   cidr_ip: 0.0.0.0/0
+    rules_egress:
+      - proto: all
+        cidr_ip: 0.0.0.0/0
+
+- name: launching ec2 instance
+  loop: "{{ subnet }}"
+  ec2:
+    aws_access_key: "{{ access_key }}"
+    aws_secret_key: "{{ secret_key }}"
+    key_name: "{{key}}"
+    instance_type: t2.micro
+    image: "{{img}}"
+    wait: true
+    group: "{{sg_name}}"
+    count: 1
+    vpc_subnet_id: "{{item}}"
+    assign_public_ip: yes
+    region: "{{region}}"
+    state: present
+    instance_tags:
+      name: webserver
+  register: ec2
+  ignore_errors: yes
+
+- set_fact:
+    id: "{{ id + item['instance_ids']}}"
+  with_items:
+    - "{{ec2.results}}"
+- debug:
+    msg: "{{ id }}"
+
+- set_fact:
+    ip: "{{ ip + item['instances']}}"
+  with_items:
+    - "{{ ec2.results }}"
+
+- debug:
+    msg: "{{item.public_ip}}"
+  with_items:
+    - "{{ ip }}"
+
+- name: dynamically add instancecs to the group into the in-memory inventory
+  add_host:
+    hostname: "{{ item.public_ip }}"
+    groupname: webserver
+  loop: "{{ ip }}"
+
+- name: wait for new instances to come up
+  wait_for:
+    host: "{{ item.public_dns_name}}"
+    port: 22
+    state: started
+  loop: "{{ ip }}"

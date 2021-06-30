@@ -1,0 +1,14 @@
+---
+# vars file for secgroup_instances
+    id: []
+    ip: []
+    subnet:
+      - subnet-d648bdbd
+      #- subnet-b14c20ca # not available for t2.micro
+      - subnet-f9a4feb5
+    region: ap-south-1
+    vpc: vpc-1d905f76
+    sg_name: "webservergroup"
+    key: dockertest
+    img: ami-011c99152163a87ae
+    my_port: 81

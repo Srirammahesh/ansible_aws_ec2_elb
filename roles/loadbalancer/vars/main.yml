@@ -1,0 +1,7 @@
+---
+# vars file for loadbalancer
+#loadbalancer/vars/main.yml
+lb: ec2elb
+sg_name: webservergroup
+region: ap-south-1
+my_port: 81
