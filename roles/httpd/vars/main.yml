@@ -1,0 +1,5 @@
+---
+# vars file for httpd
+#httpd/var/main.yml
+my_port: 81
+my_path: /var/www/html/

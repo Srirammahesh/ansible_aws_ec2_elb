@@ -1,0 +1,32 @@
+---
+# tasks file for loadbalancer
+    - name: create load balancer of aws
+      ec2_elb_lb:
+        name: "{{lb}}"
+        state: present
+        aws_access_key: "{{access_key}}"
+        aws_secret_key: "{{secret_key}}"
+        region: "{{region}}"
+        cross_az_load_balancing: yes
+        zones:
+          - "{{region}}a"
+          - "{{region}}b"
+          # - ap-south-1c
+        scheme: internet-facing
+        security_group_names: "{{sg_name}}"
+        listeners:
+          - protocol: http
+            load_balancer_port: 80
+            instance_port: "{{my_port}}"
+
+
+    - name: add webservers to AWS ELB
+      ec2_elb:
+        #name: ec2lb
+        aws_access_key: "{{access_key}}"
+        aws_secret_key: "{{secret_key}}"
+        instance_id: "{{item}}"
+        ec2_elbs: "{{lb}}"
+        state: present
+        region: "{{region}}"
+      loop: "{{id}}"

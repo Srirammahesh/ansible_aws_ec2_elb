@@ -1,0 +1,51 @@
+- ############################################play1#############################
+  name: installing localhost dependencies/aws sg/aws instance
+  hosts: localhost
+  become: yes
+  #connection: local
+  gather_facts: no
+  vars_files:
+    - /etc/ansible/cred.yml
+
+    # for user sriram in iam of aws
+    # access_key: "AKIA2KZ5M2LI35Z7XVFR"
+    # secret_key: "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"
+  #tasks:
+    # - s3_bucket:
+    #    name: sriansibletestbucket
+    #    state: present
+    #    aws_access_key: "{{access_key}}"
+    #    aws_secret_key: "{{secret_key}}"
+  roles:
+    - secgroup_instances
+
+
+
+################################play2###########################################
+- name: configuring the servers instances
+  hosts: webserver
+  gather_facts: no
+  tasks:
+    - command: curl -4 icanhazip.com
+      register: x
+    - debug:
+        var:  x.stdout
+    - name: pass variables to role
+      include_role:
+        name: httpd
+      vars:
+        my_ip: x.stdout
+
+# ###############################play3############################################
+- name: load balancer stuffs
+  hosts: localhost
+  gather_facts: no
+  vars_files:
+    - /etc/ansible/cred.yml
+
+  # vars:
+  #     access_key: "AKIA2KZ5M2LI35Z7XVFR"
+  #     secret_key: "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"
+  #tasks:
+  roles:
+    - loadbalancer

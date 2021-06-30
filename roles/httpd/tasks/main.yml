@@ -1,0 +1,31 @@
+---
+# tasks file for httpd
+#httpd/tasks/main.yml
+- name: install httpd
+  yum:
+        name: httpd
+        state: present
+  register: status
+
+- name: install php
+  yum:
+          name: php
+          state: present
+
+- name: configure httpd
+  template:
+          src: my.conf
+          dest: /etc/httpd/conf.d/my.conf
+  when: status.rc == 0
+  notify: restart httpd
+
+- name: copy code
+  copy:
+          src: /root/ansible/index.php
+          dest: "{{ my_path }}index.php"
+
+- name: start httpd
+  service:
+          name: httpd
+          state: started
+  when: status.rc == 0
