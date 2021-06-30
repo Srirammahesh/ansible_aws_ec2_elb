@@ -1,6 +1,6 @@
 ---
-# tasks file for apache2
-
+# tasks file for httpd
+#httpd/tasks/main.yml
 - name: install httpd
   yum:
         name: httpd
@@ -21,7 +21,7 @@
 
 - name: copy code
   copy:
-          src: /root/ansible/roles/apache2/index.php
+          src: /root/ansible/index.php
           dest: "{{ my_path }}index.php"
 
 - name: start httpd

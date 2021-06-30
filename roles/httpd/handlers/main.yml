@@ -1,5 +1,6 @@
 ---
-# handlers file for apache2
+# handlers file for httpd
+#httpd/handlers/main.yml
 - name: restart httpd
   service:
           name: httpd

@@ -1,4 +1,0 @@
----
-# vars file for apache2
-my_port: 81
-my_path: /var/www/html/
