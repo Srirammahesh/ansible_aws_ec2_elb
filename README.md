@@ -1,4 +1,6 @@
 # ansible_aws_ec2_elb
+![alt text](https://i.postimg.cc/SKPnQnbK/img-logo.png)
+
 Three plays has been designed in our Ansible Playbook to reach our desired goal.
 ## Play 1:
 - Create a vault (to store AWS Access Key and Secret Key).
